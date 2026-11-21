@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vicky Tracker" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <title>Vicky Tracker</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #111111;
+      --border: #222222;
+      --text: #f5f5f5;
+      --text-muted: #8e8e93;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      line-height: 1.5;
+      padding-bottom: 84px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    #installBanner {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #installBanner.visible {
+      display: flex;
+    }
+    .install-text {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .install-text span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .title-group h1 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .date-badge {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .score-display {
+      text-align: right;
+    }
+
+    .score-num {
+      font-size: 1.65rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    .score-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--text);
+      width: 0%;
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 999px;
+    }
+
+    .comparison-bar {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: block;
+    }
+
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.94rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-count {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 10px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px solid transparent;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .task-item:active {
+      transform: scale(0.99);
+    }
+
+    .task-item.locked {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .checkbox-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid #444444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .checkbox-box svg {
+      width: 14px;
+      height: 14px;
+      stroke: #000000;
+      stroke-width: 3;
+      fill: none;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .task-item.completed .checkbox-box,
+    .task-item.triggered .checkbox-box {
+      background: var(--text);
+      border-color: var(--text);
+    }
+
+    .task-item.completed .checkbox-box svg,
+    .task-item.triggered .checkbox-box svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .task-label {
+      font-size: 0.92rem;
+      color: var(--text);
+      transition: color 0.15s ease;
+    }
+
+    .task-item.completed .task-label {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .tag-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn:active {
+      opacity: 0.8;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: #000000;
+      border-color: var(--text);
+    }
+
+    .btn-full {
+      grid-column: span 2;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      height: 140px;
+      align-items: end;
+      padding-top: 16px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .bar-track {
+      width: 100%;
+      max-width: 28px;
+      height: 100px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 100%;
+      background: var(--text);
+      border-radius: 4px;
+      transition: height 0.3s ease;
+    }
+
+    .bar-score {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bar-day {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .history-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-date {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .history-score {
+      font-weight: 800;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .history-details {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .detail-tag {
+      font-size: 0.7rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    textarea.backup-box {
+      width: 100%;
+      min-height: 130px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.78rem;
+      margin-top: 10px;
+      resize: vertical;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: transform 0.25s ease;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="installBanner">
+      <div class="install-text">
+        Install Vicky Tracker
+        <span>Add to Android Home Screen for offline access</span>
+      </div>
+      <button id="installBtn" class="btn btn-primary" style="padding: 8px 14px;">Install</button>
+    </div>
+
+    <header>
+      <div class="top-row">
+        <div class="brand-left">
+          <img src="./icons/icon-192.png" alt="Vicky Tracker" class="app-avatar" />
+          <div class="title-group">
+            <h1>VICKY TRACKER</h1>
+            <div class="date-badge">
+              <span id="currentDateLabel">--</span>
+              <span id="dayStatusPill" class="status-pill">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-display">
+          <div class="score-num" id="scoreFraction">0/18</div>
+          <div class="score-sub" id="scoreBreakdown">0% · Core 0/18</div>
+        </div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+      <div class="comparison-bar">
+        <span id="comparisonText">Day 1 baseline in progress.</span>
+        <span id="istClock">IST --:--</span>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="today">Today</button>
+      <button class="tab-btn" data-tab="stats">Analytics</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </nav>
+
+    <main id="view-today" class="view-section active">
+      <div id="checklistContainer"></div>
+
+      <div class="actions-grid">
+        <button id="lockDayBtn" class="btn btn-primary">Lock Today's Score</button>
+        <button id="resetDayBtn" class="btn">Reset Day</button>
+      </div>
+    </main>
+
+    <section id="view-stats" class="view-section">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Average Daily Score</div>
+          <div class="stat-value" id="statAvgScore">0.0 / 18</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Overall Completion</div>
+          <div class="stat-value" id="statOverallPct">0%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Best-Performing Day</div>
+          <div class="stat-value" id="statBestDay">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Consistency Streak</div>
+          <div class="stat-value" id="statStreak">0 Days</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Last 7 Days Performance (Net Score)</div>
+        <div class="bar-chart" id="weeklyChart"></div>
+      </div>
+    </section>
+
+    <section id="view-history" class="view-section">
+      <div class="section-card">
+        <div class="section-header">
+          <span class="section-title">Backup & Chat Sync</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+          Export JSON backup or copy text summary to paste in chat.
+        </p>
+        <div class="actions-grid" style="margin-top: 0;">
+          <button id="exportJsonBtn" class="btn">Download JSON</button>
+          <button id="copyChatSummaryBtn" class="btn btn-primary">Copy Chat Summary</button>
+          <button id="importJsonBtn" class="btn btn-full">Restore from JSON</button>
+        </div>
+        <textarea id="backupArea" class="backup-box" placeholder="Paste JSON backup here to restore, or click Copy Chat Summary..."></textarea>
+      </div>
+
+      <div id="historyList"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast">Saved</div>
+
+  <script>
+    const ROUTINE_SECTIONS = [
+      {
+        id: "morning",
+        title: "🌅 Morning",
+        type: "core",
+        tasks: [
+          { id: "m1", label: "Wake up at 5 o'clock" },
+          { id: "m2", label: "Make my bed" },
+          { id: "m3", label: "Drink warm water" },
+          { id: "m4", label: "Brush teeth" },
+          { id: "m5", label: "First work shift" }
+        ]
+      },
+      {
+        id: "after_shift",
+        title: "🚿 After shift",
+        type: "core",
+        tasks: [
+          { id: "s1", label: "Drink water" },
+          { id: "s2", label: "Bath" },
+          { id: "s3", label: "Nap" }
+        ]
+      },
+      {
+        id: "afternoon",
+        title: "☀️ Afternoon",
+        type: "core",
+        tasks: [
+          { id: "a1", label: "Drink water" },
+          { id: "a2", label: "Acting practice" },
+          { id: "a3", label: "Drink water" },
+          { id: "a4", label: "Studies" },
+          { id: "a5", label: "Drink water" },
+          { id: "a6", label: "Second work shift" }
+        ]
+      },
+      {
+        id: "night",
+        title: "🌙 Night",
+        type: "mixed",
+        tasks: [
+          { id: "n1", label: "Freshen up", kind: "core" },
+          { id: "n2", label: "Jumping ropes", kind: "core" },
+          { id: "n3", label: "Light workout (optional)", kind: "bonus" },
+          { id: "n4", label: "Bath", kind: "core" },
+          { id: "n5", label: "Brush teeth", kind: "core" }
+        ]
+      },
+      {
+        id: "strictly_no",
+        title: "🚫 Strictly no (Reduces points)",
+        type: "penalty",
+        tasks: [
+          { id: "p1", label: "Waky without using phone", kind: "penalty" },
+          { id: "p2", label: "Using phone on bed", kind: "penalty" },
+          { id: "p3", label: "Doomscrolling", kind: "penalty" },
+          { id: "p4", label: "Thevai illatha vela", kind: "penalty" }
+        ]
+      }
+    ];
+
+    const ALL_ITEMS = ROUTINE_SECTIONS.flatMap(s =>
+      s.tasks.map(t => ({ ...t, kind: t.kind || "core" }))
+    );
+    const CORE_TASKS = ALL_ITEMS.filter(t => t.kind === "core");
+    const BONUS_TASKS = ALL_ITEMS.filter(t => t.kind === "bonus");
+    const PENALTY_TASKS = ALL_ITEMS.filter(t => t.kind === "penalty");
+    const TOTAL_CORE = CORE_TASKS.length; // 18
+    const STORAGE_KEY = "vicky_tracker_v1";
+
+    function getISTDateString(dateObj = new Date()) {
+      const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      return formatter.format(dateObj);
+    }
+
+    function getISTTimeString(dateObj = new Date()) {
+      return new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      }).format(dateObj);
+    }
+
+    function formatDisplayDate(isoDate) {
+      const [y, m, d] = isoDate.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return dt.toLocaleDateString("en-IN", {
+        timeZone: "UTC",
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.records === "object") {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load state", e);
+      }
+      return { records: {} };
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error("Failed to save state", e);
+      }
+    }
+
+    function ensureTodayRecord() {
+      const today = getISTDateString();
+      let changed = false;
+
+      Object.keys(state.records).forEach(dateKey => {
+        if (dateKey < today && !state.records[dateKey].locked) {
+          state.records[dateKey].locked = true;
+          changed = true;
+        }
+      });
+
+      if (!state.records[today]) {
+        state.records[today] = {
+          completed: [],
+          locked: false
+        };
+        changed = true;
+      }
+
+      if (changed) saveState();
+      return today;
+    }
+
+    function calculateDayScore(completedIds) {
+      const set = new Set(completedIds || []);
+      const coreDone = CORE_TASKS.filter(t => set.has(t.id)).length;
+      const bonusDone = BONUS_TASKS.filter(t => set.has(t.id)).length;
+      const penaltiesTriggered = PENALTY_TASKS.filter(t => set.has(t.id)).length;
+      const netScore = coreDone + bonusDone - penaltiesTriggered;
+      const corePct = Math.round((coreDone / TOTAL_CORE) * 100);
+      const netPct = Math.max(0, Math.round((netScore / TOTAL_CORE) * 100));
+
+      return {
+        coreDone,
+        bonusDone,
+        penaltiesTriggered,
+        netScore,
+        corePct,
+        netPct
+      };
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    function toggleItem(itemId) {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      if (rec.locked) {
+        showToast("Day is locked. Score cannot be modified.");
+        return;
+      }
+
+      const idx = rec.completed.indexOf(itemId);
+      if (idx === -1) {
+        rec.completed.push(itemId);
+      } else {
+        rec.completed.splice(idx, 1);
+      }
+
+      saveState();
+      renderAll();
+    }
+
+    function lockToday() {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      if (rec.locked) {
+        showToast("Today is already locked.");
+        return;
+      }
+      if (confirm("Lock today's score? You will not be able to modify today afterward.")) {
+        rec.locked = true;
+        saveState();
+        renderAll();
+        showToast("Today's score locked.");
+      }
+    }
+
+    function resetToday() {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      if (rec.locked) {
+        showToast("Locked days cannot be reset.");
+        return;
+      }
+      if (confirm("Reset all items for today? Previous days will not be affected.")) {
+        rec.completed = [];
+        saveState();
+        renderAll();
+        showToast("Today's checklist reset.");
+      }
+    }
+
+    function computeMetrics() {
+      const dates = Object.keys(state.records).sort();
+      const today = getISTDateString();
+
+      let totalNet = 0;
+      let bestScore = null;
+      let bestDate = null;
+
+      dates.forEach(d => {
+        const calc = calculateDayScore(state.records[d].completed);
+        totalNet += calc.netScore;
+        if (bestScore === null || calc.netScore > bestScore) {
+          bestScore = calc.netScore;
+          bestDate = d;
+        }
+      });
+
+      const dayCount = dates.length || 1;
+      const avgScore = (totalNet / dayCount).toFixed(1);
+      const overallPct = Math.max(0, Math.round((totalNet / (dayCount * TOTAL_CORE)) * 100));
+
+      let streak = 0;
+      const sortedDesc = [...dates].sort().reverse();
+      for (let i = 0; i < sortedDesc.length; i++) {
+        const d = sortedDesc[i];
+        const calc = calculateDayScore(state.records[d].completed);
+        if (d === today && calc.coreDone === 0 && calc.penaltiesTriggered === 0) {
+          continue;
+        }
+        if (calc.netScore >= 10) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      const pastDates = dates.filter(d => d < today);
+      const prevDate = pastDates.length ? pastDates[pastDates.length - 1] : null;
+      const prevCalc = prevDate ? calculateDayScore(state.records[prevDate].completed) : null;
+
+      return {
+        dates,
+        today,
+        avgScore,
+        overallPct,
+        bestScore,
+        bestDate,
+        streak,
+        prevDate,
+        prevCalc
+      };
+    }
+
+    function renderChecklist(today) {
+      const rec = state.records[today];
+      const container = document.getElementById("checklistContainer");
+      container.innerHTML = "";
+
+      ROUTINE_SECTIONS.forEach(section => {
+        const isPenaltySec = section.type === "penalty";
+        const countText = isPenaltySec
+          ? `${section.tasks.filter(t => rec.completed.includes(t.id)).length} active`
+          : `${section.tasks.filter(t => rec.completed.includes(t.id)).length}/${section.tasks.length}`;
+
+        const card = document.createElement("div");
+        card.className = "section-card";
+
+        card.innerHTML = `
+          <div class="section-header">
+            <span class="section-title">${section.title}</span>
+            <span class="section-count">${countText}</span>
+          </div>
+          <ul class="task-list">
+            ${section.tasks.map(task => {
+              const kind = task.kind || "core";
+              const isChecked = rec.completed.includes(task.id);
+              const stateClass = kind === "penalty"
+                ? (isChecked ? "triggered" : "")
+                : (isChecked ? "completed" : "");
+              const badge = kind === "bonus"
+                ? `<span class="tag-pill">+1 Bonus</span>`
+                : (kind === "penalty" ? `<span class="tag-pill">-1 Pt</span>` : "");
+
+              return `
+                <li class="task-item ${stateClass} ${rec.locked ? "locked" : ""}" data-id="${task.id}">
+                  <div class="task-left">
+                    <div class="checkbox-box">
+                      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span class="task-label">${task.label}</span>
+                  </div>
+                  ${badge}
+                </li>
+              `;
+            }).join("")}
+          </ul>
+        `;
+
+        card.querySelectorAll(".task-item").forEach(item => {
+          item.addEventListener("click", () => toggleItem(item.dataset.id));
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderHeader(today, metrics) {
+      const rec = state.records[today];
+      const calc = calculateDayScore(rec.completed);
+
+      document.getElementById("currentDateLabel").textContent = formatDisplayDate(today);
+      document.getElementById("scoreFraction").textContent = `${calc.netScore}/${TOTAL_CORE}`;
+
+      const parts = [`${calc.corePct}%`, `Core ${calc.coreDone}/${TOTAL_CORE}`];
+      if (calc.bonusDone > 0) parts.push(`+${calc.bonusDone} Bonus`);
+      if (calc.penaltiesTriggered > 0) parts.push(`-${calc.penaltiesTriggered} Penalty`);
+      document.getElementById("scoreBreakdown").textContent = parts.join(" · ");
+
+      document.getElementById("progressBar").style.width = `${Math.min(100, calc.netPct)}%`;
+      document.getElementById("istClock").textContent = `IST ${getISTTimeString()}`;
+
+      const pill = document.getElementById("dayStatusPill");
+      pill.textContent = rec.locked ? "LOCKED" : "ACTIVE";
+
+      const compEl = document.getElementById("comparisonText");
+      if (!metrics.prevCalc) {
+        compEl.textContent = "Day 1 baseline in progress.";
+      } else {
+        const diff = calc.netScore - metrics.prevCalc.netScore;
+        const sign = diff > 0 ? `+${diff}` : `${diff}`;
+        compEl.textContent = `Prev (${metrics.prevDate.slice(5)}): ${metrics.prevCalc.netScore}/${TOTAL_CORE} (${sign})`;
+      }
+    }
+
+    function renderStats(metrics) {
+      document.getElementById("statAvgScore").textContent = `${metrics.avgScore} / ${TOTAL_CORE}`;
+      document.getElementById("statOverallPct").textContent = `${metrics.overallPct}%`;
+      document.getElementById("statBestDay").textContent =
+        metrics.bestDate ? `${metrics.bestScore}/${TOTAL_CORE} (${metrics.bestDate.slice(5)})` : "--";
+      document.getElementById("statStreak").textContent = `${metrics.streak} Day${metrics.streak === 1 ? "" : "s"}`;
+
+      const chart = document.getElementById("weeklyChart");
+      chart.innerHTML = "";
+
+      const last7 = [];
+      const now = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 86400000);
+        const iso = getISTDateString(d);
+        const rec = state.records[iso];
+        const score = rec ? calculateDayScore(rec.completed).netScore : 0;
+        const dayShort = new Date(iso + "T00:00:00Z").toLocaleDateString("en-US", {
+          timeZone: "UTC",
+          weekday: "short"
+        });
+        last7.push({ iso, score, dayShort });
+      }
+
+      last7.forEach(item => {
+        const pct = Math.max(0, Math.min(100, Math.round((item.score / TOTAL_CORE) * 100)));
+        const col = document.createElement("div");
+        col.className = "bar-col";
+        col.innerHTML = `
+          <span class="bar-score">${item.score}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="height: ${pct}%;"></div>
+          </div>
+          <span class="bar-day">${item.dayShort}</span>
+        `;
+        chart.appendChild(col);
+      });
+    }
+
+    function renderHistory(metrics) {
+      const list = document.getElementById("historyList");
+      list.innerHTML = "";
+
+      const descDates = [...metrics.dates].sort().reverse();
+      descDates.forEach(dateKey => {
+        const rec = state.records[dateKey];
+        const calc = calculateDayScore(rec.completed);
+        const missedCore = CORE_TASKS.filter(t => !rec.completed.includes(t.id));
+        const doneBonus = BONUS_TASKS.filter(t => rec.completed.includes(t.id));
+        const activePenalties = PENALTY_TASKS.filter(t => rec.completed.includes(t.id));
+
+        const card = document.createElement("div");
+        card.className = "history-item";
+        card.innerHTML = `
+          <div class="history-top">
+            <span class="history-date">${formatDisplayDate(dateKey)} ${rec.locked ? "[LOCKED]" : ""}</span>
+            <span class="history-score">${calc.netScore}/${TOTAL_CORE} (${calc.netPct}%)</span>
+          </div>
+          <div class="history-details">
+            <span>Core: ${calc.coreDone}/${TOTAL_CORE} · Bonus: +${calc.bonusDone} · Penalties: -${calc.penaltiesTriggered}</span>
+            ${
+              doneBonus.length > 0
+                ? `<div class="tags-wrap">${doneBonus
+                    .map(t => `<span class="detail-tag">+1 ${t.label}</span>`)
+                    .join("")}</div>`
+                : ""
+            }
+            ${
+              activePenalties.length > 0
+                ? `<div class="tags-wrap">${activePenalties
+                    .map(t => `<span class="detail-tag">-1 ${t.label}</span>`)
+                    .join("")}</div>`
+                : ""
+            }
+            ${
+              missedCore.length > 0
+                ? `<div class="tags-wrap">${missedCore
+                    .map(t => `<span class="detail-tag">Missed: ${t.label}</span>`)
+                    .join("")}</div>`
+                : `<span>All ${TOTAL_CORE} core tasks completed.</span>`
+            }
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function renderAll() {
+      const today = ensureTodayRecord();
+      const metrics = computeMetrics();
+      renderHeader(today, metrics);
+      renderChecklist(today);
+      renderStats(metrics);
+      renderHistory(metrics);
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`view-${btn.dataset.tab}`).classList.add("active");
+      });
+    });
+
+    document.getElementById("lockDayBtn").addEventListener("click", lockToday);
+    document.getElementById("resetDayBtn").addEventListener("click", resetToday);
+
+    document.getElementById("exportJsonBtn").addEventListener("click", () => {
+      const dataStr = JSON.stringify(state, null, 2);
+      document.getElementById("backupArea").value = dataStr;
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vicky-tracker-backup-${getISTDateString()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup downloaded.");
+    });
+
+    document.getElementById("importJsonBtn").addEventListener("click", () => {
+      const raw = document.getElementById("backupArea").value.trim();
+      if (!raw) {
+        showToast("Paste JSON backup first.");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.records !== "object") {
+          throw new Error("Invalid format");
+        }
+        state = parsed;
+        saveState();
+        renderAll();
+        showToast("Progress restored.");
+      } catch (e) {
+        showToast("Invalid JSON backup.");
+      }
+    });
+
+    document.getElementById("copyChatSummaryBtn").addEventListener("click", () => {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      const calc = calculateDayScore(rec.completed);
+      const doneCore = CORE_TASKS.filter(t => rec.completed.includes(t.id)).map(t => t.label);
+      const missedCore = CORE_TASKS.filter(t => !rec.completed.includes(t.id)).map(t => t.label);
+      const doneBonus = BONUS_TASKS.filter(t => rec.completed.includes(t.id)).map(t => t.label);
+      const penalties = PENALTY_TASKS.filter(t => rec.completed.includes(t.id)).map(t => t.label);
+
+      const summary = [
+        `VICKY TRACKER UPDATE — ${today}`,
+        `Net Score: ${calc.netScore}/${TOTAL_CORE} (${calc.netPct}%) · Core: ${calc.coreDone}/${TOTAL_CORE} · Bonus: +${calc.bonusDone} · Penalties: -${calc.penaltiesTriggered} ${rec.locked ? "[LOCKED]" : "[ACTIVE]"}`,
+        `Completed Core (${doneCore.length}): ${doneCore.join(", ") || "None"}`,
+        `Missed Core (${missedCore.length}): ${missedCore.join(", ") || "None"}`,
+        `Bonus (${doneBonus.length}): ${doneBonus.join(", ") || "None"}`,
+        `Penalties (${penalties.length}): ${penalties.join(", ") || "None"}`
+      ].join("\n");
+
+      document.getElementById("backupArea").value = summary;
+      navigator.clipboard?.writeText(summary);
+      showToast("Summary copied for chat.");
+    });
+
+    let lastKnownDate = getISTDateString();
+    setInterval(() => {
+      const currentISTDate = getISTDateString();
+      document.getElementById("istClock").textContent = `IST ${getISTTimeString()}`;
+      if (currentISTDate !== lastKnownDate) {
+        lastKnownDate = currentISTDate;
+        ensureTodayRecord();
+        renderAll();
+        showToast("New IST day started.");
+      }
+    }, 30000);
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(err => {
+          console.error("SW registration failed:", err);
+        });
+      });
+    }
+
+    let deferredPrompt;
+    const installBanner = document.getElementById("installBanner");
+    const installBtn = document.getElementById("installBtn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.add("visible");
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        installBanner.classList.remove("visible");
+      }
+      deferredPrompt = null;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      installBanner.classList.remove("visible");
+      showToast("App installed on device.");
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
