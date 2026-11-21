@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vicky Tracker" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <title>Vicky Tracker</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #121215;
+      --surface-elevated: #18181d;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.14);
+      --bonus: #38bdf8;
+      --bonus-dim: rgba(56, 189, 248, 0.14);
+      --danger: #ef4444;
+      --danger-dim: rgba(239, 68, 68, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      line-height: 1.5;
+      padding-bottom: 92px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    #installBanner {
+      display: none;
+      background: var(--surface);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #installBanner.visible {
+      display: flex;
+    }
+    .install-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .install-text span {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    header {
+      background: linear-gradient(180deg, #151519 0%, #111114 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .app-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      flex-shrink: 0;
+    }
+
+    .title-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .title-group h1 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .edit-toggle-btn {
+      padding: 4px 11px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--surface-elevated);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .edit-toggle-btn:hover {
+      border-color: #3f3f46;
+    }
+
+    .edit-toggle-btn.editing {
+      background: var(--accent);
+      color: #09090b;
+      border-color: var(--accent);
+    }
+
+    .date-badge {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-pill.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+    .status-pill.locked {
+      background: var(--danger-dim);
+      color: var(--danger);
+    }
+    .status-pill.editing {
+      background: var(--bonus-dim);
+      color: var(--bonus);
+    }
+
+    .score-display {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .score-num {
+      font-size: 1.65rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      color: var(--accent);
+    }
+
+    .score-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #27272a;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+      width: 0%;
+      transition: width 0.25s ease;
+      border-radius: 999px;
+    }
+
+    .comparison-bar {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: #27272a;
+      color: var(--text);
+    }
+
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: block;
+    }
+
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s ease;
+    }
+
+    .section-card:hover {
+      border-color: #323238;
+    }
+
+    .section-card.penalty-card {
+      border-color: rgba(239, 68, 68, 0.32);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-count {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      position: relative;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .task-item.locked {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    .checkbox-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid #52525b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .checkbox-box svg {
+      width: 14px;
+      height: 14px;
+      stroke: #09090b;
+      stroke-width: 3;
+      fill: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .task-item.completed .checkbox-box {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .task-item.bonus-item.completed .checkbox-box {
+      background: var(--bonus);
+      border-color: var(--bonus);
+    }
+
+    .task-item.penalty-item.triggered .checkbox-box {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .task-item.completed .checkbox-box svg,
+    .task-item.triggered .checkbox-box svg {
+      opacity: 1;
+    }
+
+    .task-label {
+      font-size: 0.92rem;
+      color: var(--text);
+      transition: color 0.15s ease;
+      word-break: break-word;
+    }
+
+    .task-item.completed .task-label {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .task-item.penalty-item.triggered .task-label {
+      color: #fca5a5;
+    }
+
+    .tag-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tag-bonus {
+      background: var(--bonus-dim);
+      color: var(--bonus);
+    }
+
+    .tag-penalty {
+      background: var(--danger-dim);
+      color: var(--danger);
+    }
+
+    /* Drag-and-drop Edit Mode */
+    .edit-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 11px;
+      border-radius: 12px;
+      background: #0d0d10;
+      border: 1px solid var(--border);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
+    }
+
+    .edit-row.dragging-source {
+      opacity: 0.45;
+      border-style: dashed;
+      border-color: var(--accent);
+    }
+
+    .edit-row.drag-over {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .edit-row-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drag-handle {
+      width: 32px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: grab;
+      touch-action: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .floating-drag-ghost {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 120;
+      pointer-events: none;
+      background: #141418;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      will-change: transform;
+    }
+
+    .edit-name-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .edit-name-input:focus {
+      border-color: var(--accent);
+    }
+
+    .edit-row-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .kind-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .icon-action-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mini-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mini-btn:hover {
+      background: var(--surface-elevated);
+    }
+
+    .mini-btn.del {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .add-task-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .add-task-input {
+      flex: 1;
+      min-width: 160px;
+      background: #0d0d10;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 11px;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .add-task-input:focus {
+      border-color: var(--accent);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 12px 14px;
+      border-radius: 11px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--surface-elevated);
+    }
+
+    .btn:active {
+      opacity: 0.85;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #09090b;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: #0ea572;
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-full {
+      grid-column: span 2;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      height: 140px;
+      align-items: end;
+      padding-top: 16px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .bar-track {
+      width: 100%;
+      max-width: 28px;
+      height: 100px;
+      background: #1f1f23;
+      border-radius: 6px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 100%;
+      background: var(--accent);
+      border-radius: 6px;
+      transition: height 0.25s ease;
+    }
+
+    .bar-score {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bar-day {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .history-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-date {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .history-score {
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .history-details {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .missed-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .missed-tag {
+      font-size: 0.7rem;
+      background: var(--danger-dim);
+      color: var(--danger);
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    .bonus-tag {
+      font-size: 0.7rem;
+      background: var(--bonus-dim);
+      color: var(--bonus);
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    textarea.backup-box {
+      width: 100%;
+      min-height: 130px;
+      background: #09090b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.78rem;
+      margin-top: 10px;
+      resize: vertical;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #27272a;
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="installBanner">
+      <div class="install-text">
+        Install Vicky Tracker
+        <span>Add to Android Home Screen for offline access</span>
+      </div>
+      <button id="installBtn" class="btn btn-primary" style="padding: 8px 14px;">Install</button>
+    </div>
+
+    <header>
+      <div class="top-row">
+        <div class="brand-left">
+          <img src="./icons/icon-192.png" alt="Vicky Tracker" class="app-avatar" />
+          <div class="title-group">
+            <div class="title-line">
+              <h1>Vicky Tracker</h1>
+              <button id="topEditSaveBtn" class="edit-toggle-btn" type="button">Edit</button>
+            </div>
+            <div class="date-badge">
+              <span id="currentDateLabel">--</span>
+              <span id="dayStatusPill" class="status-pill active">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-display">
+          <div class="score-num" id="scoreFraction">0/18</div>
+          <div class="score-sub" id="scoreBreakdown">0% · Core 0/18</div>
+        </div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+      <div class="comparison-bar">
+        <span id="comparisonText">Day 1 baseline in progress.</span>
+        <span id="istClock">IST --:--</span>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="today">Today</button>
+      <button class="tab-btn" data-tab="stats">Analytics</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </nav>
+
+    <main id="view-today" class="view-section active">
+      <div id="checklistContainer"></div>
+
+      <div class="actions-grid" id="normalActions">
+        <button id="lockDayBtn" class="btn btn-primary" type="button">Lock Today's Score</button>
+        <button id="resetDayBtn" class="btn btn-danger" type="button">Reset Day</button>
+      </div>
+
+      <div class="actions-grid" id="editActions" style="display: none;">
+        <button id="saveRoutineBtn" class="btn btn-primary btn-full" type="button">Save Changes</button>
+      </div>
+    </main>
+
+    <section id="view-stats" class="view-section">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Average Daily Score</div>
+          <div class="stat-value" id="statAvgScore">0.0 / 18</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Overall Completion</div>
+          <div class="stat-value" id="statOverallPct">0%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Best-Performing Day</div>
+          <div class="stat-value" id="statBestDay">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Consistency Streak</div>
+          <div class="stat-value" id="statStreak">0 Days</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Last 7 Days Performance (Net Score)</div>
+        <div class="bar-chart" id="weeklyChart"></div>
+      </div>
+    </section>
+
+    <section id="view-history" class="view-section">
+      <div class="section-card">
+        <div class="section-header">
+          <span class="section-title">Backup & Chat Sync</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+          Export JSON backup or copy text summary to paste in chat.
+        </p>
+        <div class="actions-grid" style="margin-top: 0;">
+          <button id="exportJsonBtn" class="btn" type="button">Download JSON</button>
+          <button id="copyChatSummaryBtn" class="btn btn-primary" type="button">Copy Chat Summary</button>
+          <button id="importJsonBtn" class="btn btn-full" type="button">Restore from JSON</button>
+        </div>
+        <textarea id="backupArea" class="backup-box" placeholder="Paste JSON backup here to restore, or click Copy Chat Summary..."></textarea>
+      </div>
+
+      <div id="historyList"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast">Saved</div>
+
+  <script>
+    const DEFAULT_SECTIONS = [
+      {
+        id: "morning",
+        title: "🌅 Morning",
+        tasks: [
+          { id: "m1", label: "Wake up at 5 o'clock", kind: "core" },
+          { id: "m2", label: "Make my bed", kind: "core" },
+          { id: "m3", label: "Drink warm water", kind: "core" },
+          { id: "m4", label: "Brush teeth", kind: "core" },
+          { id: "m5", label: "First work shift", kind: "core" }
+        ]
+      },
+      {
+        id: "after_shift",
+        title: "🚿 After shift",
+        tasks: [
+          { id: "s1", label: "Drink water", kind: "core" },
+          { id: "s2", label: "Bath", kind: "core" },
+          { id: "s3", label: "Nap", kind: "core" }
+        ]
+      },
+      {
+        id: "afternoon",
+        title: "☀️ Afternoon",
+        tasks: [
+          { id: "a1", label: "Drink water", kind: "core" },
+          { id: "a2", label: "Acting practice", kind: "core" },
+          { id: "a3", label: "Drink water", kind: "core" },
+          { id: "a4", label: "Studies", kind: "core" },
+          { id: "a5", label: "Drink water", kind: "core" },
+          { id: "a6", label: "Second work shift", kind: "core" }
+        ]
+      },
+      {
+        id: "night",
+        title: "🌙 Night",
+        tasks: [
+          { id: "n1", label: "Freshen up", kind: "core" },
+          { id: "n2", label: "Jumping ropes", kind: "core" },
+          { id: "n3", label: "Light workout (optional)", kind: "bonus" },
+          { id: "n4", label: "Bath", kind: "core" },
+          { id: "n5", label: "Brush teeth", kind: "core" }
+        ]
+      },
+      {
+        id: "strictly_no",
+        title: "🚫 Strictly no",
+        tasks: [
+          { id: "p1", label: "Waky without using phone", kind: "penalty" },
+          { id: "p2", label: "Using phone on bed", kind: "penalty" },
+          { id: "p3", label: "Doomscrolling", kind: "penalty" },
+          { id: "p4", label: "Thevai illatha vela", kind: "penalty" }
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = "vicky_tracker_v4";
+    let isEditing = false;
+    let draftSections = null;
+    const newTaskDrafts = {};
+
+    let pointerDragState = null;
+
+    function cloneSections(secs) {
+      return JSON.parse(JSON.stringify(secs));
+    }
+
+    function getISTDateString(dateObj = new Date()) {
+      const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      return formatter.format(dateObj);
+    }
+
+    function getISTTimeString(dateObj = new Date()) {
+      return new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      }).format(dateObj);
+    }
+
+    function formatDisplayDate(isoDate) {
+      const [y, m, d] = isoDate.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return dt.toLocaleDateString("en-IN", {
+        timeZone: "UTC",
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("vicky_tracker_v3");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.records === "object" && Array.isArray(parsed.sections)) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load state", e);
+      }
+      return {
+        sections: cloneSections(DEFAULT_SECTIONS),
+        records: {}
+      };
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error("Failed to save state", e);
+      }
+    }
+
+    function getActiveSections() {
+      return isEditing && draftSections ? draftSections : state.sections;
+    }
+
+    function getTasksByKind(sections, kind) {
+      const list = [];
+      sections.forEach(sec => {
+        sec.tasks.forEach(t => {
+          const tKind = t.kind || "core";
+          if (tKind === kind) list.push({ ...t, kind: tKind, sectionId: sec.id });
+        });
+      });
+      return list;
+    }
+
+    function ensureTodayRecord() {
+      const today = getISTDateString();
+      let changed = false;
+
+      Object.keys(state.records).forEach(dateKey => {
+        if (dateKey < today && !state.records[dateKey].locked) {
+          state.records[dateKey].locked = true;
+          changed = true;
+        }
+      });
+
+      if (!state.records[today]) {
+        state.records[today] = {
+          completed: [],
+          locked: false
+        };
+        changed = true;
+      }
+
+      if (changed) saveState();
+      return today;
+    }
+
+    function calculateDayScore(completedIds, sections = state.sections) {
+      const set = new Set(completedIds || []);
+      const coreTasks = getTasksByKind(sections, "core");
+      const bonusTasks = getTasksByKind(sections, "bonus");
+      const penaltyTasks = getTasksByKind(sections, "penalty");
+      const totalCore = Math.max(1, coreTasks.length);
+
+      const coreDone = coreTasks.filter(t => set.has(t.id)).length;
+      const bonusDone = bonusTasks.filter(t => set.has(t.id)).length;
+      const penaltiesTriggered = penaltyTasks.filter(t => set.has(t.id)).length;
+      const netScore = coreDone + bonusDone - penaltiesTriggered;
+      const corePct = Math.round((coreDone / totalCore) * 100);
+      const netPct = Math.max(0, Math.round((netScore / totalCore) * 100));
+
+      return {
+        coreDone,
+        bonusDone,
+        penaltiesTriggered,
+        netScore,
+        corePct,
+        netPct,
+        totalCore: coreTasks.length
+      };
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    function enterEditMode() {
+      const today = ensureTodayRecord();
+      if (state.records[today].locked) {
+        showToast("Today is locked.");
+        return;
+      }
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
+      document.querySelector('.tab-btn[data-tab="today"]').classList.add("active");
+      document.getElementById("view-today").classList.add("active");
+
+      draftSections = cloneSections(state.sections);
+      isEditing = true;
+      renderAll();
+      showToast("Drag rows using ≡ to reorder.");
+    }
+
+    function saveEditMode() {
+      if (!isEditing || !draftSections) return;
+      draftSections.forEach(sec => {
+        sec.tasks.forEach(t => {
+          t.label = (t.label || "").trim() || "Untitled task";
+        });
+      });
+      state.sections = cloneSections(draftSections);
+      draftSections = null;
+      isEditing = false;
+      saveState();
+      renderAll();
+      showToast("Routine saved.");
+    }
+
+    function toggleEditMode() {
+      if (isEditing) {
+        saveEditMode();
+      } else {
+        enterEditMode();
+      }
+    }
+
+    function toggleItem(itemId) {
+      if (isEditing) return;
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      if (rec.locked) {
+        showToast("Day is locked. Score cannot be modified.");
+        return;
+      }
+
+      const idx = rec.completed.indexOf(itemId);
+      if (idx === -1) {
+        rec.completed.push(itemId);
+      } else {
+        rec.completed.splice(idx, 1);
+      }
+
+      saveState();
+      renderAll();
+    }
+
+    function reorderTaskWithinSection(secIdx, fromIdx, toIdx) {
+      if (!isEditing || !draftSections) return;
+      const tasks = draftSections[secIdx].tasks;
+      if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= tasks.length || toIdx >= tasks.length) {
+        return;
+      }
+      const [moved] = tasks.splice(fromIdx, 1);
+      tasks.splice(toIdx, 0, moved);
+      renderChecklist(getISTDateString());
+    }
+
+    function deleteTask(secIdx, taskIdx) {
+      if (!isEditing || !draftSections) return;
+      draftSections[secIdx].tasks.splice(taskIdx, 1);
+      renderChecklist(getISTDateString());
+    }
+
+    function addTaskToSection(secIdx, label, kind) {
+      if (!isEditing || !draftSections) return;
+      const clean = (label || "").trim();
+      if (!clean) {
+        showToast("Enter a task name first.");
+        return;
+      }
+      const uniqueId = "custom_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+      draftSections[secIdx].tasks.push({
+        id: uniqueId,
+        label: clean,
+        kind: kind || "core"
+      });
+      newTaskDrafts[secIdx] = { label: "", kind: "core" };
+      renderChecklist(getISTDateString());
+    }
+
+    function lockToday() {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      if (rec.locked) {
+        showToast("Today is already locked.");
+        return;
+      }
+      if (confirm("Lock today's score? You will not be able to modify today afterward.")) {
+        rec.locked = true;
+        saveState();
+        renderAll();
+        showToast("Today's score locked.");
+      }
+    }
+
+    function resetToday() {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      if (rec.locked) {
+        showToast("Locked days cannot be reset.");
+        return;
+      }
+      if (confirm("Reset all items for today? Previous days will not be affected.")) {
+        rec.completed = [];
+        saveState();
+        renderAll();
+        showToast("Today's checklist reset.");
+      }
+    }
+
+    function computeMetrics() {
+      const dates = Object.keys(state.records).sort();
+      const today = getISTDateString();
+      const totalCore = Math.max(1, getTasksByKind(state.sections, "core").length);
+
+      let totalNet = 0;
+      let bestScore = null;
+      let bestDate = null;
+
+      dates.forEach(d => {
+        const calc = calculateDayScore(state.records[d].completed, state.sections);
+        totalNet += calc.netScore;
+        if (bestScore === null || calc.netScore > bestScore) {
+          bestScore = calc.netScore;
+          bestDate = d;
+        }
+      });
+
+      const dayCount = dates.length || 1;
+      const avgScore = (totalNet / dayCount).toFixed(1);
+      const overallPct = Math.max(0, Math.round((totalNet / (dayCount * totalCore)) * 100));
+
+      let streak = 0;
+      const sortedDesc = [...dates].sort().reverse();
+      for (let i = 0; i < sortedDesc.length; i++) {
+        const d = sortedDesc[i];
+        const calc = calculateDayScore(state.records[d].completed, state.sections);
+        if (d === today && calc.coreDone === 0 && calc.penaltiesTriggered === 0) {
+          continue;
+        }
+        if (calc.netScore >= Math.ceil(totalCore * 0.55)) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      const pastDates = dates.filter(d => d < today);
+      const prevDate = pastDates.length ? pastDates[pastDates.length - 1] : null;
+      const prevCalc = prevDate ? calculateDayScore(state.records[prevDate].completed, state.sections) : null;
+
+      return {
+        dates,
+        today,
+        totalCore,
+        avgScore,
+        overallPct,
+        bestScore,
+        bestDate,
+        streak,
+        prevDate,
+        prevCalc
+      };
+    }
+
+    function attachPointerDrag(handleEl, rowEl, secIdx, fromIdx, labelText) {
+      handleEl.addEventListener("pointerdown", (e) => {
+        if (!isEditing || !draftSections) return;
+        e.preventDefault();
+        handleEl.setPointerCapture(e.pointerId);
+
+        const rect = rowEl.getBoundingClientRect();
+        const ghost = document.createElement("div");
+        ghost.className = "floating-drag-ghost";
+        ghost.style.width = `${rect.width}px`;
+        ghost.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0)`;
+        ghost.innerHTML = `<span style="color: var(--accent);">≡</span><span>${(labelText || "Task").replace(/</g, "&lt;")}</span>`;
+        document.body.appendChild(ghost);
+
+        rowEl.classList.add("dragging-source");
+
+        pointerDragState = {
+          pointerId: e.pointerId,
+          secIdx,
+          fromIdx,
+          overIdx: fromIdx,
+          offsetX: e.clientX - rect.left,
+          offsetY: e.clientY - rect.top,
+          ghost,
+          sourceRow: rowEl
+        };
+      });
+
+      handleEl.addEventListener("pointermove", (e) => {
+        if (!pointerDragState || pointerDragState.pointerId !== e.pointerId) return;
+        e.preventDefault();
+
+        const x = e.clientX - pointerDragState.offsetX;
+        const y = e.clientY - pointerDragState.offsetY;
+        pointerDragState.ghost.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+
+        const listEl = rowEl.parentElement;
+        const rows = [...listEl.querySelectorAll(".edit-row")];
+        rows.forEach(r => r.classList.remove("drag-over"));
+
+        let targetIdx = pointerDragState.fromIdx;
+        for (let i = 0; i < rows.length; i++) {
+          const rRect = rows[i].getBoundingClientRect();
+          const midY = rRect.top + rRect.height / 2;
+          if (e.clientY >= rRect.top && e.clientY <= rRect.bottom) {
+            targetIdx = i;
+            rows[i].classList.add("drag-over");
+            break;
+          } else if (i === 0 && e.clientY < midY) {
+            targetIdx = 0;
+            rows[0].classList.add("drag-over");
+            break;
+          } else if (i === rows.length - 1 && e.clientY > midY) {
+            targetIdx = rows.length - 1;
+            rows[rows.length - 1].classList.add("drag-over");
+            break;
+          }
+        }
+        pointerDragState.overIdx = targetIdx;
+      });
+
+      const finishDrag = (e) => {
+        if (!pointerDragState || pointerDragState.pointerId !== e.pointerId) return;
+        const { secIdx: sIdx, fromIdx: fIdx, overIdx: tIdx, ghost, sourceRow } = pointerDragState;
+        pointerDragState = null;
+
+        if (ghost && ghost.parentNode) ghost.parentNode.removeChild(ghost);
+        if (sourceRow) sourceRow.classList.remove("dragging-source");
+        document.querySelectorAll(".edit-row.drag-over").forEach(r => r.classList.remove("drag-over"));
+
+        if (fIdx !== tIdx) {
+          reorderTaskWithinSection(sIdx, fIdx, tIdx);
+        }
+      };
+
+      handleEl.addEventListener("pointerup", finishDrag);
+      handleEl.addEventListener("pointercancel", finishDrag);
+    }
+
+    function renderChecklist(today) {
+      const rec = state.records[today];
+      const activeSecs = getActiveSections();
+      const container = document.getElementById("checklistContainer");
+      container.innerHTML = "";
+
+      activeSecs.forEach((section, secIdx) => {
+        const isPenaltyOnly = section.tasks.length > 0 && section.tasks.every(t => (t.kind || "core") === "penalty");
+        const countText = isPenaltyOnly
+          ? `${section.tasks.filter(t => rec.completed.includes(t.id)).length} active`
+          : `${section.tasks.filter(t => (t.kind || "core") === "core" && rec.completed.includes(t.id)).length}/${section.tasks.filter(t => (t.kind || "core") === "core").length}`;
+
+        const card = document.createElement("div");
+        card.className = `section-card ${isPenaltyOnly ? "penalty-card" : ""}`;
+
+        if (!isEditing) {
+          card.innerHTML = `
+            <div class="section-header">
+              <span class="section-title">${section.title}</span>
+              <span class="section-count">${countText}</span>
+            </div>
+            <ul class="task-list">
+              ${section.tasks.map(task => {
+                const kind = task.kind || "core";
+                const isChecked = rec.completed.includes(task.id);
+                const stateClass = kind === "penalty"
+                  ? (isChecked ? "triggered" : "")
+                  : (isChecked ? "completed" : "");
+                const extraClass = kind === "bonus"
+                  ? "bonus-item"
+                  : (kind === "penalty" ? "penalty-item" : "");
+                const badge = kind === "bonus"
+                  ? `<span class="tag-pill tag-bonus">+1 Bonus</span>`
+                  : (kind === "penalty" ? `<span class="tag-pill tag-penalty">-1 Pt</span>` : "");
+
+                return `
+                  <li class="task-item ${stateClass} ${extraClass} ${rec.locked ? "locked" : ""}" data-id="${task.id}">
+                    <div class="task-left">
+                      <div class="checkbox-box">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </div>
+                      <span class="task-label">${task.label}</span>
+                    </div>
+                    ${badge}
+                  </li>
+                `;
+              }).join("")}
+            </ul>
+          `;
+
+          card.querySelectorAll(".task-item").forEach(item => {
+            item.addEventListener("click", () => toggleItem(item.dataset.id));
+          });
+        } else {
+          if (!newTaskDrafts[secIdx]) {
+            newTaskDrafts[secIdx] = { label: "", kind: "core" };
+          }
+          card.innerHTML = `
+            <div class="section-header">
+              <span class="section-title">${section.title}</span>
+              <span class="section-count">${section.tasks.length} items</span>
+            </div>
+            <div class="task-list">
+              ${section.tasks.map((task, tIdx) => {
+                const kind = task.kind || "core";
+                return `
+                  <div class="edit-row" data-tidx="${tIdx}">
+                    <div class="edit-row-top">
+                      <button type="button" class="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">≡</button>
+                      <input type="text" class="edit-name-input" value="${(task.label || "").replace(/"/g, "&quot;")}" data-tidx="${tIdx}" placeholder="Task name" />
+                    </div>
+                    <div class="edit-row-bottom">
+                      <select class="kind-select" data-tidx="${tIdx}">
+                        <option value="core" ${kind === "core" ? "selected" : ""}>Normal (1 pt)</option>
+                        <option value="bonus" ${kind === "bonus" ? "selected" : ""}>Bonus (+1 pt)</option>
+                        <option value="penalty" ${kind === "penalty" ? "selected" : ""}>Negative (-1 pt)</option>
+                      </select>
+                      <div class="icon-action-group">
+                        <button type="button" class="mini-btn del" data-tidx="${tIdx}">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+            <div class="add-task-box">
+              <input type="text" class="add-task-input" value="${(newTaskDrafts[secIdx].label || "").replace(/"/g, "&quot;")}" placeholder="Add new task..." />
+              <select class="kind-select new-kind">
+                <option value="core" ${newTaskDrafts[secIdx].kind === "core" ? "selected" : ""}>Normal</option>
+                <option value="bonus" ${newTaskDrafts[secIdx].kind === "bonus" ? "selected" : ""}>Bonus (+1)</option>
+                <option value="penalty" ${newTaskDrafts[secIdx].kind === "penalty" ? "selected" : ""}>Negative (-1)</option>
+              </select>
+              <button type="button" class="mini-btn add-btn">Add</button>
+            </div>
+          `;
+
+          card.querySelectorAll(".edit-row").forEach((rowEl, tIdx) => {
+            const handleEl = rowEl.querySelector(".drag-handle");
+            const currentLabel = draftSections[secIdx].tasks[tIdx].label;
+            attachPointerDrag(handleEl, rowEl, secIdx, tIdx, currentLabel);
+          });
+
+          card.querySelectorAll(".edit-name-input").forEach(inp => {
+            inp.addEventListener("input", (e) => {
+              const idx = Number(e.target.dataset.tidx);
+              draftSections[secIdx].tasks[idx].label = e.target.value;
+            });
+          });
+
+          card.querySelectorAll(".task-list .kind-select").forEach(sel => {
+            sel.addEventListener("change", (e) => {
+              const idx = Number(e.target.dataset.tidx);
+              draftSections[secIdx].tasks[idx].kind = e.target.value;
+            });
+          });
+
+          card.querySelectorAll(".del").forEach(btn => {
+            btn.addEventListener("click", () => deleteTask(secIdx, Number(btn.dataset.tidx)));
+          });
+
+          const addInput = card.querySelector(".add-task-input");
+          const newKindSel = card.querySelector(".new-kind");
+          const addBtn = card.querySelector(".add-btn");
+
+          addInput.addEventListener("input", (e) => {
+            newTaskDrafts[secIdx].label = e.target.value;
+          });
+          newKindSel.addEventListener("change", (e) => {
+            newTaskDrafts[secIdx].kind = e.target.value;
+          });
+          addBtn.addEventListener("click", () => {
+            addTaskToSection(secIdx, addInput.value, newKindSel.value);
+          });
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderHeader(today, metrics) {
+      const rec = state.records[today];
+      const secs = getActiveSections();
+      const calc = calculateDayScore(rec.completed, secs);
+
+      document.getElementById("currentDateLabel").textContent = formatDisplayDate(today);
+      document.getElementById("scoreFraction").textContent = `${calc.netScore}/${calc.totalCore}`;
+
+      const parts = [`${calc.corePct}%`, `Core ${calc.coreDone}/${calc.totalCore}`];
+      if (calc.bonusDone > 0) parts.push(`+${calc.bonusDone} Bonus`);
+      if (calc.penaltiesTriggered > 0) parts.push(`-${calc.penaltiesTriggered} Penalty`);
+      document.getElementById("scoreBreakdown").textContent = parts.join(" · ");
+
+      document.getElementById("progressBar").style.width = `${Math.min(100, calc.netPct)}%`;
+      document.getElementById("istClock").textContent = `IST ${getISTTimeString()}`;
+
+      const editBtn = document.getElementById("topEditSaveBtn");
+      const pill = document.getElementById("dayStatusPill");
+
+      if (isEditing) {
+        editBtn.textContent = "Save";
+        editBtn.classList.add("editing");
+        pill.textContent = "EDITING";
+        pill.className = "status-pill editing";
+        document.getElementById("normalActions").style.display = "none";
+        document.getElementById("editActions").style.display = "grid";
+      } else {
+        editBtn.textContent = "Edit";
+        editBtn.classList.remove("editing");
+        document.getElementById("normalActions").style.display = "grid";
+        document.getElementById("editActions").style.display = "none";
+        if (rec.locked) {
+          pill.textContent = "LOCKED";
+          pill.className = "status-pill locked";
+        } else {
+          pill.textContent = "ACTIVE";
+          pill.className = "status-pill active";
+        }
+      }
+
+      const compEl = document.getElementById("comparisonText");
+      if (!metrics.prevCalc) {
+        compEl.textContent = "Day 1 baseline in progress.";
+      } else {
+        const diff = calc.netScore - metrics.prevCalc.netScore;
+        const sign = diff > 0 ? `+${diff}` : `${diff}`;
+        compEl.textContent = `Prev (${metrics.prevDate.slice(5)}): ${metrics.prevCalc.netScore}/${calc.totalCore} (${sign})`;
+      }
+    }
+
+    function renderStats(metrics) {
+      document.getElementById("statAvgScore").textContent = `${metrics.avgScore} / ${metrics.totalCore}`;
+      document.getElementById("statOverallPct").textContent = `${metrics.overallPct}%`;
+      document.getElementById("statBestDay").textContent =
+        metrics.bestDate ? `${metrics.bestScore}/${metrics.totalCore} (${metrics.bestDate.slice(5)})` : "--";
+      document.getElementById("statStreak").textContent = `${metrics.streak} Day${metrics.streak === 1 ? "" : "s"}`;
+
+      const chart = document.getElementById("weeklyChart");
+      chart.innerHTML = "";
+
+      const last7 = [];
+      const now = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 86400000);
+        const iso = getISTDateString(d);
+        const rec = state.records[iso];
+        const score = rec ? calculateDayScore(rec.completed, state.sections).netScore : 0;
+        const dayShort = new Date(iso + "T00:00:00Z").toLocaleDateString("en-US", {
+          timeZone: "UTC",
+          weekday: "short"
+        });
+        last7.push({ iso, score, dayShort });
+      }
+
+      last7.forEach(item => {
+        const pct = Math.max(0, Math.min(100, Math.round((item.score / metrics.totalCore) * 100)));
+        const col = document.createElement("div");
+        col.className = "bar-col";
+        col.innerHTML = `
+          <span class="bar-score">${item.score}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="height: ${pct}%;"></div>
+          </div>
+          <span class="bar-day">${item.dayShort}</span>
+        `;
+        chart.appendChild(col);
+      });
+    }
+
+    function renderHistory(metrics) {
+      const list = document.getElementById("historyList");
+      list.innerHTML = "";
+
+      const coreTasks = getTasksByKind(state.sections, "core");
+      const bonusTasks = getTasksByKind(state.sections, "bonus");
+      const penaltyTasks = getTasksByKind(state.sections, "penalty");
+
+      const descDates = [...metrics.dates].sort().reverse();
+      descDates.forEach(dateKey => {
+        const rec = state.records[dateKey];
+        const calc = calculateDayScore(rec.completed, state.sections);
+        const missedCore = coreTasks.filter(t => !rec.completed.includes(t.id));
+        const doneBonus = bonusTasks.filter(t => rec.completed.includes(t.id));
+        const activePenalties = penaltyTasks.filter(t => rec.completed.includes(t.id));
+
+        const card = document.createElement("div");
+        card.className = "history-item";
+        card.innerHTML = `
+          <div class="history-top">
+            <span class="history-date">${formatDisplayDate(dateKey)} ${rec.locked ? "🔒" : ""}</span>
+            <span class="history-score">${calc.netScore}/${calc.totalCore} (${calc.netPct}%)</span>
+          </div>
+          <div class="history-details">
+            <span>Core: ${calc.coreDone}/${calc.totalCore} · Bonus: +${calc.bonusDone} · Penalties: -${calc.penaltiesTriggered}</span>
+            ${
+              doneBonus.length > 0
+                ? `<div class="missed-tags">${doneBonus
+                    .map(t => `<span class="bonus-tag">+1 ${t.label}</span>`)
+                    .join("")}</div>`
+                : ""
+            }
+            ${
+              activePenalties.length > 0
+                ? `<div class="missed-tags">${activePenalties
+                    .map(t => `<span class="missed-tag">-1 ${t.label}</span>`)
+                    .join("")}</div>`
+                : ""
+            }
+            ${
+              missedCore.length > 0
+                ? `<div class="missed-tags">${missedCore
+                    .map(t => `<span class="missed-tag">Missed: ${t.label}</span>`)
+                    .join("")}</div>`
+                : `<span style="color: var(--accent);">All ${calc.totalCore} core tasks completed.</span>`
+            }
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function renderAll() {
+      const today = ensureTodayRecord();
+      const metrics = computeMetrics();
+      renderHeader(today, metrics);
+      renderChecklist(today);
+      renderStats(metrics);
+      renderHistory(metrics);
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (isEditing) {
+          showToast("Save edits first before switching tabs.");
+          return;
+        }
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`view-${btn.dataset.tab}`).classList.add("active");
+      });
+    });
+
+    document.getElementById("topEditSaveBtn").addEventListener("click", toggleEditMode);
+    document.getElementById("saveRoutineBtn").addEventListener("click", saveEditMode);
+    document.getElementById("lockDayBtn").addEventListener("click", lockToday);
+    document.getElementById("resetDayBtn").addEventListener("click", resetToday);
+
+    document.getElementById("exportJsonBtn").addEventListener("click", () => {
+      const dataStr = JSON.stringify(state, null, 2);
+      document.getElementById("backupArea").value = dataStr;
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vicky-tracker-backup-${getISTDateString()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup downloaded.");
+    });
+
+    document.getElementById("importJsonBtn").addEventListener("click", () => {
+      const raw = document.getElementById("backupArea").value.trim();
+      if (!raw) {
+        showToast("Paste JSON backup first.");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.records !== "object") {
+          throw new Error("Invalid format");
+        }
+        if (!Array.isArray(parsed.sections)) {
+          parsed.sections = cloneSections(DEFAULT_SECTIONS);
+        }
+        state = parsed;
+        saveState();
+        renderAll();
+        showToast("Progress restored.");
+      } catch (e) {
+        showToast("Invalid JSON backup.");
+      }
+    });
+
+    document.getElementById("copyChatSummaryBtn").addEventListener("click", () => {
+      const today = ensureTodayRecord();
+      const rec = state.records[today];
+      const calc = calculateDayScore(rec.completed, state.sections);
+      const coreTasks = getTasksByKind(state.sections, "core");
+      const bonusTasks = getTasksByKind(state.sections, "bonus");
+      const penaltyTasks = getTasksByKind(state.sections, "penalty");
+
+      const doneCore = coreTasks.filter(t => rec.completed.includes(t.id)).map(t => t.label);
+      const missedCore = coreTasks.filter(t => !rec.completed.includes(t.id)).map(t => t.label);
+      const doneBonus = bonusTasks.filter(t => rec.completed.includes(t.id)).map(t => t.label);
+      const penalties = penaltyTasks.filter(t => rec.completed.includes(t.id)).map(t => t.label);
+
+      const summary = [
+        `VICKY TRACKER UPDATE — ${today}`,
+        `Net Score: ${calc.netScore}/${calc.totalCore} (${calc.netPct}%) · Core: ${calc.coreDone}/${calc.totalCore} · Bonus: +${calc.bonusDone} · Penalties: -${calc.penaltiesTriggered} ${rec.locked ? "[LOCKED]" : "[ACTIVE]"}`,
+        `Completed Core (${doneCore.length}): ${doneCore.join(", ") || "None"}`,
+        `Missed Core (${missedCore.length}): ${missedCore.join(", ") || "None"}`,
+        `Bonus (${doneBonus.length}): ${doneBonus.join(", ") || "None"}`,
+        `Penalties (${penalties.length}): ${penalties.join(", ") || "None"}`
+      ].join("\n");
+
+      document.getElementById("backupArea").value = summary;
+      navigator.clipboard?.writeText(summary);
+      showToast("Summary copied for chat.");
+    });
+
+    let lastKnownDate = getISTDateString();
+    setInterval(() => {
+      const currentISTDate = getISTDateString();
+      document.getElementById("istClock").textContent = `IST ${getISTTimeString()}`;
+      if (currentISTDate !== lastKnownDate) {
+        lastKnownDate = currentISTDate;
+        ensureTodayRecord();
+        renderAll();
+        showToast("New IST day started.");
+      }
+    }, 30000);
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(err => {
+          console.error("SW registration failed:", err);
+        });
+      });
+    }
+
+    let deferredPrompt;
+    const installBanner = document.getElementById("installBanner");
+    const installBtn = document.getElementById("installBtn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.add("visible");
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        installBanner.classList.remove("visible");
+      }
+      deferredPrompt = null;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      installBanner.classList.remove("visible");
+      showToast("App installed on device.");
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
